@@ -1,3 +1,5 @@
+import ApiError from '../../error/ApiError';
+import { AdminModel } from '../admin/admin.model';
 import { UserModel } from './user.model';
 
 const createUserIntoDB = async (payload: any) => {
@@ -9,7 +11,8 @@ const getAllUsersFromDB = async () => {
   return data;
 };
 const getUserByIdfromDB = async (id: string) => {
-  const data = await UserModel.findById(id);
+  const data = await UserModel.findById(id).populate('transactions');
+  // const data = await UserModel.findById(id);
   return data;
 };
 

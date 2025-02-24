@@ -1,6 +1,7 @@
-import { BaseAccount, Transaction } from '../../interface';
-// User Interface
+import mongoose from 'mongoose';
+import { BaseAccount } from '../../interface';
+
 export interface IUser extends BaseAccount {
   role: 'user';
-  transactions?: Transaction[];
+  transactions?: mongoose.Types.ObjectId[]; // Store only references
 }

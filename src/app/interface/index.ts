@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 // Common interface for all roles
 interface BaseAccount {
-  id: string;
+  _id?: mongoose.Types.ObjectId; // MongoDB automatically generates an ObjectId
   name: string;
   pin: string;
   mobileNumber: string;
@@ -12,21 +12,18 @@ interface BaseAccount {
   role: 'user' | 'agent' | 'admin';
   isActive: boolean;
   isDeleted: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-// Transaction Interfac
+// Transaction Interface
 interface Transaction {
-  id: string;
+  _id?: mongoose.Types.ObjectId;
   senderId?: mongoose.Types.ObjectId; // Optional for Cash-In
   receiverId?: mongoose.Types.ObjectId; // Optional for Cash-Out
-  // senderId?: string; // Not required for cash-in
-  // receiverId?: string; // Not required for cash-out
   amount: number;
-  type: 'SendMoney' | 'CashIn' | 'CashOut';
+  type: 'sendmoney' | 'cashin' | 'cashout';
   fee: number;
-  timestamp: Date;
+  timestamp?: Date;
 }
-
 export { BaseAccount, Transaction };
