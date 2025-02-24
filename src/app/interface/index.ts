@@ -16,14 +16,6 @@ interface BaseAccount {
   updatedAt: Date;
 }
 
-// Agent Interface
-interface Agent extends BaseAccount {
-  role: 'agent';
-  isVerified: boolean;
-  transactions: Transaction[];
-  totalIncome: number;
-}
-
 // Admin Interface
 interface Admin extends BaseAccount {
   role: 'admin';
@@ -31,17 +23,17 @@ interface Admin extends BaseAccount {
   totalIncome: number;
 }
 
-// Transaction Interface
+// Transaction Interfac
 interface Transaction {
   id: string;
-  senderId?: mongoose.Types.ObjectId;
-  receiverId?: mongoose.Types.ObjectId;
-  //   senderId?: string; // Not required for cash-in
-  //   receiverId?: string; // Not required for cash-out
+  senderId?: mongoose.Types.ObjectId; // Optional for Cash-In
+  receiverId?: mongoose.Types.ObjectId; // Optional for Cash-Out
+  // senderId?: string; // Not required for cash-in
+  // receiverId?: string; // Not required for cash-out
   amount: number;
   type: 'SendMoney' | 'CashIn' | 'CashOut';
   fee: number;
   timestamp: Date;
 }
 
-export { BaseAccount, Agent, Admin, Transaction };
+export { BaseAccount, Admin, Transaction };
