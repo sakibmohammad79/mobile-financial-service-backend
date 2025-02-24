@@ -13,11 +13,9 @@ export const agentValidationSchema = z.object({
         .min(4, { message: 'PIN must be at least 4 characters long' })
         .max(6, { message: 'PIN cannot exceed 6 characters' }),
 
-      mobileNumber: z.string({ required_error: 'Mobile number is required' }),
-      // .regex(/^01[3-9]\d{8}$/, {
-      //   message: 'Invalid Bangladeshi mobile number format',
-      // }
-      // ),
+      mobileNumber: z
+        .string({ required_error: 'Mobile number is required' })
+        .regex(/^\d{11}$/, 'Mobile number must be exactly 11 digits'),
       email: z
         .string({ required_error: 'Email is required' })
         .email({ message: 'Invalid email address' }),

@@ -6,7 +6,7 @@ import { AgentServices } from './agent.service';
 
 const createAgent: RequestHandler = catchAsync(async (req, res, next) => {
   const payload = req.body.agent;
-  console.log(payload);
+
   const result = await AgentServices.createAgentIntoDB(payload);
   sendResponse(res, {
     statusCode: StatusCodes.OK,

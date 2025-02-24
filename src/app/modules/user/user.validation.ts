@@ -8,10 +8,9 @@ const userValidationSchema = z.object({
       pin: z
         .string()
         .min(4, { message: 'PIN must be at least 4 characters long' }), // Should be hashed before storing
-      mobileNumber: z.string({ message: 'Mobile number is required' }),
-      // .regex(/^(\+8801[3-9]\d{8})$/, {
-      //   message: 'Invalid Bangladeshi mobile number',
-      // }),
+      mobileNumber: z
+        .string({ message: 'Mobile number is required' })
+        .regex(/^\d{11}$/, 'Mobile number must be exactly 11 digits'),
       email: z.string().email({ message: 'Invalid email address' }),
       nid: z
         .string()

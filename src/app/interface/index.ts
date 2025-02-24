@@ -16,13 +16,6 @@ interface BaseAccount {
   updatedAt: Date;
 }
 
-// Admin Interface
-interface Admin extends BaseAccount {
-  role: 'admin';
-  totalSystemBalance: number;
-  totalIncome: number;
-}
-
 // Transaction Interfac
 interface Transaction {
   id: string;
@@ -36,4 +29,4 @@ interface Transaction {
   timestamp: Date;
 }
 
-export { BaseAccount, Admin, Transaction };
+export { BaseAccount, Transaction };
