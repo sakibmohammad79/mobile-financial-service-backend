@@ -10,6 +10,8 @@ interface BaseAccount {
   nid: string;
   balance: number;
   role: 'user' | 'agent' | 'admin';
+  isActive: boolean;
+  isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

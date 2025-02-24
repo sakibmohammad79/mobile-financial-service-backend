@@ -11,6 +11,11 @@ const UserSchema = new Schema<IUser>(
     nid: { type: String, required: true, unique: true },
     balance: { type: Number, default: 40 }, // Users get 40 Taka as a bonus
     role: { type: String, enum: ['user'], default: 'user' },
+    isActive: { type: Boolean, default: true },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
     transactions: [
       {
         type: Schema.Types.ObjectId,
