@@ -7,7 +7,7 @@ async function main() {
     await mongoose.connect(config.DATABASE_URL as string);
     console.log('Connected to database');
     app.listen(config.PORT, () => {
-      console.log(`MFS app listening on port ${config.PORT}`);
+      console.log(`mfs apps listening on port ${config.PORT}`);
     });
   } catch (err) {
     console.log(err);
