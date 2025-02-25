@@ -1,5 +1,4 @@
 import { Router } from 'express';
-
 import { validateRequest } from '../../middlewares/validateRequest';
 import { AgentController } from './agent.controller';
 import { agentValidationSchema } from './agent.validation';
@@ -7,9 +6,6 @@ import { agentValidationSchema } from './agent.validation';
 const route = Router();
 
 route.get('/', AgentController.getAllAgent);
-
-route.get('/:id', AgentController.getAgentById);
-
 route.get('/:id', AgentController.getAgentById);
 
 route.post(
@@ -17,5 +13,9 @@ route.post(
   validateRequest(agentValidationSchema),
   AgentController.createAgent,
 );
+
+route.patch('/update/:id', AgentController.updateAgentById);
+route.patch('/blocked/:id', AgentController.blockAgentById);
+route.delete('/soft-delete/:id', AgentController.softDeleteAgentById);
 
 export const AgentRoutes = route;

@@ -6,17 +6,48 @@ const createAgentIntoDB = async (payload: any) => {
   const createAgentData = await AgentModel.create(payload);
   return createAgentData;
 };
+
 const getAllAgentFromDB = async () => {
-  const data = await AgentModel.find();
+  const data = await AgentModel.find({ isDeleted: false }); // Exclude soft-deleted agents
   return data;
 };
-const getAgentByIdfromDB = async (id: string) => {
-  const data = await AgentModel.findById(id);
+
+const getAgentByIdFromDB = async (id: string) => {
+  const data = await AgentModel.findOne({ _id: id, isDeleted: false }); // Exclude soft-deleted agent
   return data;
+};
+
+const updateAgentById = async (id: string, updateData: any) => {
+  const updatedAgent = await AgentModel.findByIdAndUpdate(id, updateData, {
+    new: true, // Return updated document
+    runValidators: true, // Ensure validations
+  });
+  return updatedAgent;
+};
+
+const blockAgentById = async (id: string) => {
+  const blockedAgent = await AgentModel.findByIdAndUpdate(
+    id,
+    { isActive: false },
+    { new: true },
+  );
+  return blockedAgent;
+};
+
+const softDeleteAgentById = async (id: string) => {
+  const softDeletedAgent = await AgentModel.findByIdAndUpdate(
+    id,
+    { isDeleted: true },
+    { new: true },
+  );
+  return softDeletedAgent;
 };
 
 export const AgentServices = {
   createAgentIntoDB,
-  getAgentByIdfromDB,
   getAllAgentFromDB,
+  getAgentByIdFromDB,
+  updateAgentById,
+  blockAgentById,
+  softDeleteAgentById,
 };

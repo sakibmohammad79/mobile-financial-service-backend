@@ -35,9 +35,43 @@ const getUserById: RequestHandler = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const updateUser: RequestHandler = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { data } = req.body;
+  const result = await UserService.updateUser(id, data);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'User Update successfully!',
+    data: result,
+  });
+});
+const useSoftDelete: RequestHandler = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await UserService.softDeleteUser(id);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'User soft delete successfully!',
+    data: result,
+  });
+});
+const userBlocked: RequestHandler = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await UserService.userBlocked(id);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'User blocked  successfully!',
+    data: result,
+  });
+});
 
 export const UserController = {
   getAllUser,
   createUser,
   getUserById,
+  updateUser,
+  useSoftDelete,
+  userBlocked,
 };

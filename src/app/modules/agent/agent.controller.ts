@@ -4,35 +4,68 @@ import { sendResponse } from '../../../shared/sendResponse';
 import { StatusCodes } from 'http-status-codes';
 import { AgentServices } from './agent.service';
 
-const createAgent: RequestHandler = catchAsync(async (req, res, next) => {
+const createAgent: RequestHandler = catchAsync(async (req, res) => {
   const payload = req.body.agent;
-
   const result = await AgentServices.createAgentIntoDB(payload);
   sendResponse(res, {
-    statusCode: StatusCodes.OK,
+    statusCode: StatusCodes.CREATED,
     success: true,
     message: 'Agent created successfully!',
     data: result,
   });
 });
 
-const getAllAgent: RequestHandler = catchAsync(async (req, res, next) => {
+const getAllAgent: RequestHandler = catchAsync(async (_req, res) => {
   const result = await AgentServices.getAllAgentFromDB();
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: 'All agent fetched successfully!',
+    message: 'All agents fetched successfully!',
     data: result,
   });
 });
 
 const getAgentById: RequestHandler = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const result = await AgentServices.getAgentByIdfromDB(id);
+  const result = await AgentServices.getAgentByIdFromDB(id);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: 'Single agent fetched successfully!',
+    message: 'Agent fetched successfully!',
+    data: result,
+  });
+});
+
+const updateAgentById: RequestHandler = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const updateData = req.body;
+  const result = await AgentServices.updateAgentById(id, updateData);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Agent updated successfully!',
+    data: result,
+  });
+});
+
+const blockAgentById: RequestHandler = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await AgentServices.blockAgentById(id);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Agent blocked successfully!',
+    data: result,
+  });
+});
+
+const softDeleteAgentById: RequestHandler = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await AgentServices.softDeleteAgentById(id);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Agent deleted successfully!',
     data: result,
   });
 });
@@ -41,4 +74,7 @@ export const AgentController = {
   createAgent,
   getAllAgent,
   getAgentById,
+  updateAgentById,
+  blockAgentById,
+  softDeleteAgentById,
 };
