@@ -6,8 +6,14 @@ const createUserIntoDB = async (payload: any) => {
   return createUserData;
 };
 
-const getAllUsersFromDB = async () => {
-  const data = await UserModel.find({ isDeleted: false });
+const getAllUsersFromDB = async (phone?: string) => {
+  const query: any = { isDeleted: false, isActive: true };
+
+  if (phone) {
+    query.mobileNumber = { $regex: phone, $options: 'i' }; // Case-insensitive search
+  }
+
+  const data = await UserModel.find(query);
   return data;
 };
 

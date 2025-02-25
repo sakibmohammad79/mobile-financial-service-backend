@@ -16,7 +16,8 @@ const createUser: RequestHandler = catchAsync(async (req, res, next) => {
 });
 
 const getAllUser: RequestHandler = catchAsync(async (req, res, next) => {
-  const result = await UserService.getAllUsersFromDB();
+  const { phone } = req.query;
+  const result = await UserService.getAllUsersFromDB(phone as string);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,

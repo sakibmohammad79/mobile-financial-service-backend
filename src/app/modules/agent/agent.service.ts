@@ -7,8 +7,14 @@ const createAgentIntoDB = async (payload: any) => {
   return createAgentData;
 };
 
-const getAllAgentFromDB = async () => {
-  const data = await AgentModel.find({ isDeleted: false }); // Exclude soft-deleted agents
+const getAllAgentFromDB = async (phone?: string) => {
+  const query: any = { isDeleted: false, isActive: true };
+
+  if (phone) {
+    query.mobileNumber = { $regex: phone, $options: 'i' }; // Case-insensitive search
+  }
+
+  const data = await AgentModel.find(query);
   return data;
 };
 

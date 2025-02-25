@@ -15,8 +15,9 @@ const createAgent: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
-const getAllAgent: RequestHandler = catchAsync(async (_req, res) => {
-  const result = await AgentServices.getAllAgentFromDB();
+const getAllAgent: RequestHandler = catchAsync(async (req, res) => {
+  const { phone } = req.query;
+  const result = await AgentServices.getAllAgentFromDB(phone as string);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
