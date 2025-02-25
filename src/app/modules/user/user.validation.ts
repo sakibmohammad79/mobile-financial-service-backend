@@ -1,13 +1,11 @@
 import { z } from 'zod';
-
-// Define User Validation Schema
 const userValidationSchema = z.object({
   body: z.object({
     user: z.object({
       name: z.string().min(1, { message: 'User name is required' }),
       pin: z
         .string()
-        .min(4, { message: 'PIN must be at least 4 characters long' }), // Should be hashed before storing
+        .min(4, { message: 'PIN must be at least 4 characters long' }),
       mobileNumber: z
         .string({ message: 'Mobile number is required' })
         .regex(/^\d{11}$/, 'Mobile number must be exactly 11 digits'),
@@ -22,7 +20,7 @@ const userValidationSchema = z.object({
       role: z.enum(['user']),
       isActive: z.boolean().default(true),
       isDeleted: z.boolean().default(false),
-      transactions: z.array(z.string()).optional(), // Array of transaction ObjectIds
+      transactions: z.array(z.string()).optional(),
     }),
   }),
 });

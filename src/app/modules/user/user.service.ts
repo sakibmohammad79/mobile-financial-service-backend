@@ -10,7 +10,7 @@ const getAllUsersFromDB = async (phone?: string) => {
   const query: any = { isDeleted: false, isActive: true };
 
   if (phone) {
-    query.mobileNumber = { $regex: phone, $options: 'i' }; // Case-insensitive search
+    query.mobileNumber = { $regex: phone, $options: 'i' };
   }
 
   const data = await UserModel.find(query);

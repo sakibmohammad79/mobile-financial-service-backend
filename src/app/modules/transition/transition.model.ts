@@ -8,8 +8,8 @@ const TransactionSchema = new Schema<Transaction>(
       refPath: 'senderType',
       required: true,
     },
-    receiverId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // Change ref to 'User'
-    senderType: { type: String, enum: ['admin', 'user'], required: false }, // Make senderType optional
+    receiverId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    senderType: { type: String, enum: ['admin', 'user'], required: false },
     amount: { type: Number, required: true, min: 50 },
     type: {
       type: String,

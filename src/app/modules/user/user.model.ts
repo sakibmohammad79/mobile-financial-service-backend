@@ -50,7 +50,7 @@ const UserSchema = new Schema<IUser>(
     transactions: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Transaction', // Referencing Transaction collection
+        ref: 'Transaction',
       },
     ],
   },

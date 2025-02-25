@@ -21,7 +21,6 @@ export const agentValidationSchema = z.object({
         .email({ message: 'Invalid email address' }),
 
       nid: z.string({ required_error: 'NID is required' }),
-      // .length(10, { message: 'NID must be exactly 10 characters long' }),
 
       balance: z
         .number({ required_error: 'Balance is required' })
@@ -43,7 +42,7 @@ export const agentValidationSchema = z.object({
         .min(0, { message: 'Total income cannot be negative' })
         .default(0),
 
-      transactions: z.array(z.string()).optional(), // Transaction IDs as strings
+      transactions: z.array(z.string()).optional(),
     }),
   }),
 });
