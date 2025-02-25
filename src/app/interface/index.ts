@@ -21,6 +21,7 @@ interface Transaction {
   _id?: mongoose.Types.ObjectId;
   senderId?: mongoose.Types.ObjectId; // Optional for Cash-In
   receiverId?: mongoose.Types.ObjectId; // Optional for Cash-Out
+  senderType: 'Admin' | 'User'; // Specifies sender type
   amount: number;
   type: 'sendmoney' | 'cashin' | 'cashout';
   fee: number;

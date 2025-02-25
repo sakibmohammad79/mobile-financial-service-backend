@@ -14,4 +14,6 @@ route.post(
   AdminController.createAdmin,
 );
 
+route.put('/approve-agent/:agentId', AdminController.approveAgentService);
+
 export const AdminRoutes = route;

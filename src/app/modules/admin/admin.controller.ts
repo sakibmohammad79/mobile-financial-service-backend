@@ -35,9 +35,20 @@ const getAdminById: RequestHandler = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const approveAgentService: RequestHandler = catchAsync(async (req, res) => {
+  const { agentId } = req.params;
+  const result = await AdminService.approveAgentService(agentId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Agent approved successfully!',
+    data: result,
+  });
+});
 
 export const AdminController = {
   createAdmin,
   getAllAdmin,
   getAdminById,
+  approveAgentService,
 };

@@ -36,9 +36,23 @@ const getAgentById: RequestHandler = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const requestBalanceRecharge: RequestHandler = catchAsync(async (req, res) => {
+  const { agentId, amount } = req.body;
+  const result = await AgentServices.requestBalanceRechargeService(
+    agentId,
+    amount,
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Balance recharge successful!',
+    data: result,
+  });
+});
 
 export const AgentController = {
   createAgent,
   getAllAgent,
   getAgentById,
+  requestBalanceRecharge,
 };

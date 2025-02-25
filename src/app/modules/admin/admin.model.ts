@@ -15,6 +15,12 @@ const AdminSchema = new Schema<IAdmin>(
     isDeleted: { type: Boolean, default: false },
     totalSystemBalance: { type: Number, required: true, default: 0 },
     totalIncome: { type: Number, required: true, default: 0 },
+    transactions: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Transaction',
+      },
+    ],
   },
   { timestamps: true },
 );

@@ -2,11 +2,11 @@ import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../error/ApiError';
 import { UserModel } from '../user/user.model';
 import { AdminModel } from '../admin/admin.model';
+import mongoose from 'mongoose';
 import { TransactionModel } from './transition.model';
 import { AgentModel } from '../agent/agent.mode';
-import mongoose from 'mongoose';
 
-export const sendMoneyIntoDB = async (
+export const sendMoneyService = async (
   senderId: string,
   receiverPhone: string,
   amount: number,
@@ -22,48 +22,36 @@ export const sendMoneyIntoDB = async (
   session.startTransaction();
 
   try {
-    // Find Sender
     const sender = await UserModel.findById(senderId).session(session);
-    if (!sender) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Sender not found.');
-    }
+    if (!sender) throw new ApiError(StatusCodes.NOT_FOUND, 'Sender not found.');
 
-    // Find Receiver
     const receiver = await UserModel.findOne({
       mobileNumber: receiverPhone,
     }).session(session);
-    if (!receiver) {
+    if (!receiver)
       throw new ApiError(StatusCodes.NOT_FOUND, 'Receiver not found.');
-    }
 
-    // Calculate Fees
     const fee = amount > 100 ? 5 : 0;
     const totalDeduction = amount + fee;
 
-    // Check Sender Balance
     if (sender.balance < totalDeduction) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Insufficient balance.');
     }
 
-    // Deduct from Sender & Add to Receiver
     sender.balance -= totalDeduction;
     receiver.balance += amount;
 
-    // Add Fee to Admin Account
     const admin = await AdminModel.findOne().session(session);
-    if (!admin) {
+    if (!admin)
       throw new ApiError(StatusCodes.NOT_FOUND, 'Admin account not found.');
-    }
 
     admin.totalIncome += fee;
     admin.totalSystemBalance += fee;
 
-    // Save Updates
     await sender.save({ session });
     await receiver.save({ session });
     await admin.save({ session });
 
-    // Create Transaction Record
     const transaction = await TransactionModel.create(
       [
         {
@@ -71,13 +59,13 @@ export const sendMoneyIntoDB = async (
           receiverId: receiver._id,
           amount,
           type: 'sendmoney',
+          senderType: 'user',
           fee,
         },
       ],
       { session },
     );
 
-    // Add transaction to sender & receiver history
     await UserModel.findByIdAndUpdate(
       senderId,
       { $push: { transactions: transaction[0]._id } },
@@ -92,11 +80,7 @@ export const sendMoneyIntoDB = async (
     await session.commitTransaction();
     session.endSession();
 
-    return {
-      success: true,
-      message: 'Transaction successful!',
-      data: transaction[0],
-    };
+    return transaction[0];
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -110,58 +94,47 @@ export const cashOutService = async (
   amount: number,
   pin: string,
 ) => {
-  // Validate amount
-  if (amount < 50) {
-    throw new Error('Minimum cash-out amount is 50 taka.');
-  }
+  if (amount < 50)
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Minimum cash-out amount is 50 taka.',
+    );
 
-  // Validate user
   const user = await UserModel.findById(userId);
-  if (!user || user.pin !== pin) {
-    throw new Error('Invalid user or PIN.');
-  }
-  if (user.balance < amount) {
-    throw new Error('Insufficient balance.');
-  }
+  if (!user || user.pin !== pin)
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid user or PIN.');
 
-  // Validate agent
+  if (user.balance < amount)
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Insufficient balance.');
+
   const agent = await AgentModel.findById(agentId);
-  if (!agent || !agent.isVerified) {
-    throw new Error('Invalid or unverified agent.');
-  }
+  if (!agent || !agent.isVerified)
+    throw new ApiError(StatusCodes.FORBIDDEN, 'Invalid or unverified agent.');
 
-  // Calculate fees
-  const agentFee = amount * 0.01; // 1% for agent
-  const adminFee = amount * 0.005; // 0.5% for admin
+  const agentFee = amount * 0.01;
+  const adminFee = amount * 0.005;
   const totalFee = agentFee + adminFee;
-  const totalDeducted = amount + totalFee; // User pays the amount + fees
+  const totalDeducted = amount + totalFee;
 
-  // Validate admin
   const admin = await AdminModel.findOne();
-  if (!admin) {
-    throw new Error('Admin account not found.');
-  }
+  if (!admin)
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Admin account not found.');
 
-  // Start Mongoose transaction session
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    // Update user balance
     user.balance -= totalDeducted;
     await user.save({ session });
 
-    // Update agent balance & income
-    agent.balance += amount - agentFee; // Agent gets amount minus their 1% fee
+    agent.balance += amount - agentFee;
     agent.totalIncome += agentFee;
     await agent.save({ session });
 
-    // Update admin balance & income
     admin.totalSystemBalance += adminFee;
     admin.totalIncome += adminFee;
     await admin.save({ session });
 
-    // Create transaction record
     const transaction = await TransactionModel.create(
       [
         {
@@ -175,7 +148,6 @@ export const cashOutService = async (
       { session },
     );
 
-    // Push transaction to user and agent
     await UserModel.findByIdAndUpdate(
       userId,
       { $push: { transactions: transaction[0]._id } },
@@ -187,7 +159,73 @@ export const cashOutService = async (
       { session },
     );
 
-    // Commit transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    return transaction[0];
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
+};
+
+export const cashInService = async (
+  userId: string,
+  agentId: string,
+  amount: number,
+  pin: string,
+) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const agent = await AgentModel.findById(agentId).session(session);
+    if (!agent) throw new ApiError(StatusCodes.NOT_FOUND, 'Agent not found.');
+    if (!agent.isVerified)
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Agent is not verified.');
+    if (agent.pin !== pin)
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid PIN.');
+    if (agent.balance < amount) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'Agent has insufficient balance.',
+      );
+    }
+
+    const user = await UserModel.findById(userId).session(session);
+    if (!user) throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.');
+
+    user.balance += amount;
+    agent.balance -= amount;
+
+    const admin = await AdminModel.findOne().session(session);
+    if (admin) {
+      admin.totalSystemBalance += amount;
+      await admin.save({ session });
+    }
+
+    await user.save({ session });
+    await agent.save({ session });
+
+    const transaction = await TransactionModel.create(
+      [
+        {
+          senderId: agent._id,
+          receiverId: user._id,
+          amount,
+          type: 'cashin',
+          fee: 0,
+        },
+      ],
+      { session },
+    );
+
+    agent?.transactions?.push(transaction[0]._id);
+    user?.transactions?.push(transaction[0]._id);
+    await agent.save({ session });
+    await user.save({ session });
+
     await session.commitTransaction();
     session.endSession();
 
@@ -200,6 +238,7 @@ export const cashOutService = async (
 };
 
 export const TransactionService = {
-  sendMoneyIntoDB,
+  sendMoneyService,
   cashOutService,
+  cashInService,
 };
