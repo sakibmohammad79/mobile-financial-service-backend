@@ -309,9 +309,27 @@ export const requestBalanceRechargeService = async (
   }
 };
 
+export const getUserTransactionsService = async (userId: string) => {
+  const user = await UserModel.findById(userId).populate('transactions');
+  if (!user || user.isDeleted) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.');
+  }
+  return user.transactions;
+};
+
+export const getAgentTransactionsService = async (agentId: string) => {
+  const agent = await AgentModel.findById(agentId).populate('transactions');
+  if (!agent || agent.isDeleted) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Agent not found.');
+  }
+  return agent.transactions;
+};
+
 export const TransactionService = {
   sendMoneyService,
   cashOutService,
   cashInService,
   requestBalanceRechargeService,
+  getUserTransactionsService,
+  getAgentTransactionsService,
 };

@@ -62,10 +62,32 @@ const requestBalanceRecharge: RequestHandler = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getUserTransactions: RequestHandler = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const result = await TransactionService.getUserTransactionsService(userId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'All user transactions fetched successfully!',
+    data: result,
+  });
+});
+const getAgentTransactions: RequestHandler = catchAsync(async (req, res) => {
+  const { agentId } = req.params;
+  const result = await TransactionService.getAgentTransactionsService(agentId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'All agent transactions fetched successfully!',
+    data: result,
+  });
+});
 
 export const TransactionController = {
   sendMoney,
   cashOut,
   cashIn,
   requestBalanceRecharge,
+  getUserTransactions,
+  getAgentTransactions,
 };

@@ -7,6 +7,9 @@ import { agentValidationSchema } from './agent.validation';
 const route = Router();
 
 route.get('/', AgentController.getAllAgent);
+
+route.get('/:id', AgentController.getAgentById);
+
 route.get('/:id', AgentController.getAgentById);
 
 route.post(
