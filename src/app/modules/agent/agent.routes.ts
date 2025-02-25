@@ -15,6 +15,4 @@ route.post(
   AgentController.createAgent,
 );
 
-route.post('/balance-recharge', AgentController.requestBalanceRecharge);
-
 export const AgentRoutes = route;
