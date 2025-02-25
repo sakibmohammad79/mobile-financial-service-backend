@@ -23,12 +23,13 @@ export const sendMoneyService = async (
 
   try {
     const sender = await UserModel.findById(senderId).session(session);
-    if (!sender) throw new ApiError(StatusCodes.NOT_FOUND, 'Sender not found.');
+    if (!sender || sender.isDeleted || !sender.isActive)
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Sender not found.');
 
     const receiver = await UserModel.findOne({
       mobileNumber: receiverPhone,
     }).session(session);
-    if (!receiver)
+    if (!receiver || receiver.isDeleted || !receiver.isActive)
       throw new ApiError(StatusCodes.NOT_FOUND, 'Receiver not found.');
 
     const fee = amount > 100 ? 5 : 0;
@@ -101,14 +102,16 @@ export const cashOutService = async (
     );
 
   const user = await UserModel.findById(userId);
-  if (!user || user.pin !== pin)
-    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid user or PIN.');
+  if (!user || user.isDeleted || !user.isActive)
+    throw new ApiError(StatusCodes.NOT_FOUND, 'user not found.');
+  if (user.pin !== pin)
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid  PIN.');
 
   if (user.balance < amount)
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Insufficient balance.');
 
   const agent = await AgentModel.findById(agentId);
-  if (!agent || !agent.isVerified)
+  if (!agent || !agent.isVerified || !agent.isActive || agent.isDeleted)
     throw new ApiError(StatusCodes.FORBIDDEN, 'Invalid or unverified agent.');
 
   const agentFee = amount * 0.01;
@@ -182,8 +185,11 @@ export const cashInService = async (
   try {
     const agent = await AgentModel.findById(agentId).session(session);
     if (!agent) throw new ApiError(StatusCodes.NOT_FOUND, 'Agent not found.');
-    if (!agent.isVerified)
-      throw new ApiError(StatusCodes.FORBIDDEN, 'Agent is not verified.');
+    if (!agent.isVerified || !agent.isActive || agent.isDeleted)
+      throw new ApiError(
+        StatusCodes.FORBIDDEN,
+        'Invalid or unverified agent or deleted agent.',
+      );
     if (agent.pin !== pin)
       throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid PIN.');
     if (agent.balance < amount) {
@@ -268,8 +274,11 @@ export const requestBalanceRechargeService = async (
     if (!agent) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Agent not found.');
     }
-    if (!agent.isVerified) {
-      throw new ApiError(StatusCodes.FORBIDDEN, 'Agent is not verified.');
+    if (!agent.isVerified || !agent.isActive || agent.isDeleted) {
+      throw new ApiError(
+        StatusCodes.FORBIDDEN,
+        'Agent is not verified or not active or deleted.',
+      );
     }
 
     // Update agent and admin balances
@@ -311,7 +320,7 @@ export const requestBalanceRechargeService = async (
 
 export const getUserTransactionsService = async (userId: string) => {
   const user = await UserModel.findById(userId).populate('transactions');
-  if (!user || user.isDeleted) {
+  if (!user || user.isDeleted || !user.isActive) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.');
   }
   return user.transactions;
@@ -319,7 +328,7 @@ export const getUserTransactionsService = async (userId: string) => {
 
 export const getAgentTransactionsService = async (agentId: string) => {
   const agent = await AgentModel.findById(agentId).populate('transactions');
-  if (!agent || agent.isDeleted) {
+  if (!agent || agent.isDeleted || !agent.isActive) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Agent not found.');
   }
   return agent.transactions;

@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import { AgentModel } from './agent.mode';
+import ApiError from '../../error/ApiError';
 
 const createAgentIntoDB = async (payload: any) => {
-  payload._id = new mongoose.Types.ObjectId(); // Convert to ObjectId
   const createAgentData = await AgentModel.create(payload);
   return createAgentData;
 };
@@ -19,11 +19,21 @@ const getAllAgentFromDB = async (phone?: string) => {
 };
 
 const getAgentByIdFromDB = async (id: string) => {
-  const data = await AgentModel.findOne({ _id: id, isDeleted: false }); // Exclude soft-deleted agent
+  const data = await AgentModel.findOne({
+    _id: id,
+    isDeleted: false,
+    isActive: true,
+  });
   return data;
 };
 
 const updateAgentById = async (id: string, updateData: any) => {
+  const agent = await AgentModel.findOne({
+    _id: id,
+    isDeleted: false,
+    isActive: true,
+  });
+  if (!agent) throw new ApiError(404, 'agent not found');
   const updatedAgent = await AgentModel.findByIdAndUpdate(id, updateData, {
     new: true, // Return updated document
     runValidators: true, // Ensure validations
@@ -32,6 +42,12 @@ const updateAgentById = async (id: string, updateData: any) => {
 };
 
 const blockAgentById = async (id: string) => {
+  const agent = await AgentModel.findOne({
+    _id: id,
+    isDeleted: false,
+    isActive: true,
+  });
+  if (!agent) throw new ApiError(404, 'agent not found');
   const blockedAgent = await AgentModel.findByIdAndUpdate(
     id,
     { isActive: false },
@@ -41,6 +57,12 @@ const blockAgentById = async (id: string) => {
 };
 
 const softDeleteAgentById = async (id: string) => {
+  const agent = await AgentModel.findOne({
+    _id: id,
+    isDeleted: false,
+    isActive: true,
+  });
+  if (!agent) throw new ApiError(404, 'agent not found');
   const softDeletedAgent = await AgentModel.findByIdAndUpdate(
     id,
     { isDeleted: true },

@@ -17,13 +17,18 @@ const getAdminByIdfromDB = async (id: string) => {
   return data;
 };
 
-export const approveAgentService = async (agentId: string) => {
+const approveAgentService = async (agentId: string) => {
   const agent = await AgentModel.findById(agentId);
   if (!agent) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Agent not found.');
   }
 
+  // Approve agent
   agent.isVerified = true;
+
+  // Add 1000 to agent's balance
+  agent.balance = (agent.balance || 0) + 100000;
+
   const data = await agent.save();
 
   return data;
