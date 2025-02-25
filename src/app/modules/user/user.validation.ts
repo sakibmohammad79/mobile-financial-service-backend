@@ -3,9 +3,8 @@ const userValidationSchema = z.object({
   body: z.object({
     user: z.object({
       name: z.string().min(1, { message: 'User name is required' }),
-      pin: z
-        .string()
-        .min(4, { message: 'PIN must be at least 4 characters long' }),
+      pin: z.string({ message: 'PIN must be exactly 5 digits' }),
+
       mobileNumber: z
         .string({ message: 'Mobile number is required' })
         .regex(/^\d{11}$/, 'Mobile number must be exactly 11 digits'),

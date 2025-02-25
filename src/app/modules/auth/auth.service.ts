@@ -1,9 +1,8 @@
 import bcrypt from 'bcryptjs';
-import jwt, { Secret } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { UserModel } from '../user/user.model';
 import ApiError from '../../error/ApiError';
 import { StatusCodes } from 'http-status-codes';
-import { jwtHelpers } from '../../../helpers/jwtHelper';
 import config from '../../config';
 
 const loginUserIntoDB = async (identifier: string, pin: string) => {
@@ -20,18 +19,18 @@ const loginUserIntoDB = async (identifier: string, pin: string) => {
   }
 
   // Check if the user is blocked
-  if (!user.isActive) {
-    throw new ApiError(StatusCodes.FORBIDDEN, 'Your account is blocked');
+  if (!user.isActive || user.isDeleted) {
+    throw new ApiError(
+      StatusCodes.FORBIDDEN,
+      'Your account is blocked or deleted.',
+    );
   }
 
-  // Validate password
-  //   const isPasswordValid = await bcrypt.compare(pin, user.pin);
-  //   if (!isPasswordValid) {
-  //     throw new ApiError(
-  //       StatusCodes.UNAUTHORIZED,
-  //       'Invalid email or mobile number or password',
-  //     );
-  //   }
+  // Validate pin
+  const isPinValid = await bcrypt.compare(pin, user.pin);
+  if (!isPinValid) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid pin');
+  }
 
   // Generate JWT token
   const jwtPayload = {
@@ -40,11 +39,9 @@ const loginUserIntoDB = async (identifier: string, pin: string) => {
     email: user.email,
   };
 
-  const token = jwt.sign(
-    { id: user._id, role: user.role },
-    config.jwt.access_token_secret as string,
-    { expiresIn: '14d' },
-  );
+  const token = jwt.sign(jwtPayload, config.jwt.access_token_secret as string, {
+    expiresIn: '14d',
+  });
 
   return { token, user };
 };

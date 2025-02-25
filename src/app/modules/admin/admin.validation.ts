@@ -6,9 +6,7 @@ export const adminValidationSchema = z.object({
       name: z
         .string({ required_error: 'Name is required' })
         .min(3, 'Name must be at least 3 characters long'),
-      pin: z
-        .string({ required_error: 'PIN is required' })
-        .min(4, 'PIN must be at least 4 characters long'),
+      pin: z.string({ message: 'PIN must be exactly 5 digits' }),
       mobileNumber: z
         .string({ required_error: 'Mobile number is required' })
         .regex(/^\d{11}$/, 'Mobile number must be exactly 11 digits'),

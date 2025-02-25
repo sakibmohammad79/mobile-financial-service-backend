@@ -5,7 +5,10 @@ import { IAgent } from './agent.interface';
 const AgentSchema = new Schema<IAgent>(
   {
     name: { type: String, required: true },
-    pin: { type: String, required: true },
+    pin: {
+      type: String,
+      required: [true, 'PIN is required'],
+    },
     mobileNumber: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     nid: { type: String, required: true, unique: true },

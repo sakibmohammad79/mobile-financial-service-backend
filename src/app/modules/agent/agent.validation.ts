@@ -8,10 +8,7 @@ export const agentValidationSchema = z.object({
         .min(3, { message: 'Name must be at least 3 characters long' })
         .max(50, { message: 'Name cannot exceed 50 characters' }),
 
-      pin: z
-        .string({ required_error: 'PIN is required' })
-        .min(4, { message: 'PIN must be at least 4 characters long' })
-        .max(6, { message: 'PIN cannot exceed 6 characters' }),
+      pin: z.string({ message: 'PIN must be exactly 5 digits' }),
 
       mobileNumber: z
         .string({ required_error: 'Mobile number is required' })

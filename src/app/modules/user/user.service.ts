@@ -1,7 +1,19 @@
+import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../error/ApiError';
 import { UserModel } from './user.model';
+import bcryptjs from 'bcryptjs';
 
 const createUserIntoDB = async (payload: any) => {
+  // Check if PIN is exactly 5 digits before hashing
+  if (!/^\d{5}$/.test(payload.pin)) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'PIN must be exactly 5 digits');
+  }
+  // Hash the PIN before saving
+  const saltRounds = 10;
+  const hashedPin = await bcryptjs.hash(payload.pin, saltRounds);
+
+  // Replace plain PIN with hashed PIN
+  payload.pin = hashedPin;
   const createUserData = await UserModel.create(payload);
   return createUserData;
 };

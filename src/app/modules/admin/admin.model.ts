@@ -5,7 +5,10 @@ import { IAdmin } from './admin.interface';
 const AdminSchema = new Schema<IAdmin>(
   {
     name: { type: String, required: true },
-    pin: { type: String, required: true }, // Hashed PIN
+    pin: {
+      type: String,
+      required: [true, 'PIN is required'],
+    },
     mobileNumber: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     nid: { type: String, required: true, unique: true },
