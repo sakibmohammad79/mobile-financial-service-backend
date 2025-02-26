@@ -5,6 +5,7 @@ import { validateRequest } from '../../middlewares/validateRequest';
 
 const route = Router();
 
+route.get('/recharge-request', AdminController.getAllRechareRequest);
 route.get('/', AdminController.getAllAdmin);
 route.get('/:id', AdminController.getAdminById);
 

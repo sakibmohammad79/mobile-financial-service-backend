@@ -103,7 +103,7 @@ const cashOutService = async (
     );
 
   const user = await UserModel.findById(userId);
-  console.log(user);
+
   if (!user || user.isDeleted || !user.isActive) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'user not found.');
   }

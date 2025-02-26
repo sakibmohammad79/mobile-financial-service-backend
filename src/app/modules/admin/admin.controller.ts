@@ -58,10 +58,21 @@ const approveBalanceRechargeRequest: RequestHandler = catchAsync(
   },
 );
 
+const getAllRechareRequest: RequestHandler = catchAsync(async (req, res) => {
+  const result = await AdminService.getAllRechareRequest();
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'All recharge request fetched successfully!',
+    data: result,
+  });
+});
+
 export const AdminController = {
   createAdmin,
   getAllAdmin,
   getAdminById,
   approveAgentService,
   approveBalanceRechargeRequest,
+  getAllRechareRequest,
 };

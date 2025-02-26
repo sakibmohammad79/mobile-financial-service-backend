@@ -45,6 +45,11 @@ const approveAgentService = async (agentId: string) => {
   return data;
 };
 
+const getAllRechareRequest = async () => {
+  const data = await RechargeRequestModel.find();
+  return data;
+};
+
 /**
  * Approve a recharge request by admin.
  */
@@ -56,7 +61,7 @@ export const approveAgentBalanceRechargeRequest = async (requestId: string) => {
     // Find the recharge request
     const rechargeRequest =
       await RechargeRequestModel.findById(requestId).session(session);
-    console.log(rechargeRequest);
+
     if (!rechargeRequest) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Recharge request not found.');
     }
@@ -132,4 +137,5 @@ export const AdminService = {
   getAllAdminFromDB,
   approveAgentService,
   approveAgentBalanceRechargeRequest,
+  getAllRechareRequest,
 };
