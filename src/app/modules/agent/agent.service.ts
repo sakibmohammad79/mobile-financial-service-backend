@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { AgentModel } from './agent.mode';
+import RechargeRequestModel, { AgentModel } from './agent.mode';
 import ApiError from '../../error/ApiError';
 import bcryptjs from 'bcryptjs';
 import { StatusCodes } from 'http-status-codes';
@@ -83,6 +83,42 @@ const softDeleteAgentById = async (id: string) => {
   return softDeletedAgent;
 };
 
+/**
+ * Create a recharge request by an agent.
+ */
+export const createBalanceRechargeRequest = async (
+  agentId: string,
+  amount: number,
+) => {
+  if (amount <= 0) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Amount must be greater than 0.',
+    );
+  }
+
+  // Check if agent exists and is active
+  const agent = await AgentModel.findById(agentId);
+  if (!agent) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Agent not found.');
+  }
+  if (!agent.isVerified || !agent.isActive || agent.isDeleted) {
+    throw new ApiError(
+      StatusCodes.FORBIDDEN,
+      'Agent is not verified, inactive, or deleted.',
+    );
+  }
+
+  // Create a recharge request (pending approval)
+  const rechargeRequest = await RechargeRequestModel.create({
+    agentId,
+    amount,
+    status: 'pending', // Status: pending | approved | rejected
+  });
+
+  return rechargeRequest;
+};
+
 export const AgentServices = {
   createAgentIntoDB,
   getAllAgentFromDB,
@@ -90,4 +126,5 @@ export const AgentServices = {
   updateAgentById,
   blockAgentById,
   softDeleteAgentById,
+  createBalanceRechargeRequest,
 };

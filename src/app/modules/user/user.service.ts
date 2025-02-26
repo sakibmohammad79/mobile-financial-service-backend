@@ -2,6 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../error/ApiError';
 import { UserModel } from './user.model';
 import bcryptjs from 'bcryptjs';
+import mongoose from 'mongoose';
 
 const createUserIntoDB = async (payload: any) => {
   // Check if PIN is exactly 5 digits before hashing
@@ -30,8 +31,9 @@ const getAllUsersFromDB = async (phone?: string) => {
 };
 
 const getUserByIdfromDB = async (id: string) => {
+  const objectId = new mongoose.Types.ObjectId(id);
   const data = await UserModel.findOne({
-    _id: id,
+    _id: objectId,
     isDeleted: false,
     isActive: true,
   }).populate('transactions');

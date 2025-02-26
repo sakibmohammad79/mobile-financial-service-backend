@@ -71,6 +71,20 @@ const softDeleteAgentById: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
+const requestBalanceRecharge: RequestHandler = catchAsync(async (req, res) => {
+  const { agentId, amount } = req.body;
+  const result = await AgentServices.createBalanceRechargeRequest(
+    agentId,
+    amount,
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Balance recharge request send successful!',
+    data: result,
+  });
+});
+
 export const AgentController = {
   createAgent,
   getAllAgent,
@@ -78,4 +92,5 @@ export const AgentController = {
   updateAgentById,
   blockAgentById,
   softDeleteAgentById,
+  requestBalanceRecharge,
 };

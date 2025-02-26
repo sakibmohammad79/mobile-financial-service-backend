@@ -17,5 +17,6 @@ route.post(
 route.patch('/update/:id', AgentController.updateAgentById);
 route.patch('/blocked/:id', AgentController.blockAgentById);
 route.delete('/soft-delete/:id', AgentController.softDeleteAgentById);
+route.post('/balance-recharge', AgentController.requestBalanceRecharge);
 
 export const AgentRoutes = route;

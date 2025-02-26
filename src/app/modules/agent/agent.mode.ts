@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IAgent } from './agent.interface';
+import { IAgent, IRechargeRequest } from './agent.interface';
 
 // Agent Schema
 const AgentSchema = new Schema<IAgent>(
@@ -30,3 +30,33 @@ const AgentSchema = new Schema<IAgent>(
 
 // Create Agent Model
 export const AgentModel = mongoose.model<IAgent>('Agent', AgentSchema);
+
+const RechargeRequestSchema = new Schema<IRechargeRequest>(
+  {
+    agentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Agent',
+      required: true,
+    },
+    amount: {
+      type: Number,
+      required: true,
+      min: 1, // Ensure positive amount
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
+    },
+  },
+  {
+    timestamps: true, // Automatically adds createdAt & updatedAt fields
+  },
+);
+
+const RechargeRequestModel = mongoose.model<IRechargeRequest>(
+  'RechargeRequest',
+  RechargeRequestSchema,
+);
+
+export default RechargeRequestModel;

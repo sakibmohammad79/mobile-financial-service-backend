@@ -49,19 +49,6 @@ const cashIn: RequestHandler = catchAsync(async (req, res, next) => {
   });
 });
 
-const requestBalanceRecharge: RequestHandler = catchAsync(async (req, res) => {
-  const { agentId, amount } = req.body;
-  const result = await TransactionService.requestBalanceRechargeService(
-    agentId,
-    amount,
-  );
-  sendResponse(res, {
-    statusCode: StatusCodes.OK,
-    success: true,
-    message: 'Balance recharge successful!',
-    data: result,
-  });
-});
 const getUserTransactions: RequestHandler = catchAsync(async (req, res) => {
   const { userId } = req.params;
   const result = await TransactionService.getUserTransactionsService(userId);
@@ -87,7 +74,6 @@ export const TransactionController = {
   sendMoney,
   cashOut,
   cashIn,
-  requestBalanceRecharge,
   getUserTransactions,
   getAgentTransactions,
 };

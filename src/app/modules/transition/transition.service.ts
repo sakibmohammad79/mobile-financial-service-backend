@@ -243,81 +243,6 @@ export const cashInService = async (
   }
 };
 
-export const requestBalanceRechargeService = async (
-  agentId: string,
-  amount: number,
-) => {
-  if (amount <= 0) {
-    throw new ApiError(
-      StatusCodes.BAD_REQUEST,
-      'Amount must be greater than 0.',
-    );
-  }
-
-  const admin = await AdminModel.findOne();
-  if (!admin) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'Admin account not found.');
-  }
-  if (admin.totalSystemBalance < amount) {
-    throw new ApiError(
-      StatusCodes.BAD_REQUEST,
-      'Admin has insufficient balance.',
-    );
-  }
-
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
-  try {
-    // Find agent
-    const agent = await AgentModel.findById(agentId).session(session);
-    if (!agent) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Agent not found.');
-    }
-    if (!agent.isVerified || !agent.isActive || agent.isDeleted) {
-      throw new ApiError(
-        StatusCodes.FORBIDDEN,
-        'Agent is not verified or not active or deleted.',
-      );
-    }
-
-    // Update agent and admin balances
-    agent.balance += amount;
-    admin.totalSystemBalance -= amount;
-
-    // Create transaction record
-    const transaction = await TransactionModel.create(
-      [
-        {
-          senderId: admin._id,
-          senderType: 'admin', // Differentiates from user transactions
-          receiverId: agent._id,
-          amount,
-          type: 'recharge',
-          fee: 0,
-        },
-      ],
-      { session },
-    );
-
-    // Link transaction to both Admin and Agent
-    agent.transactions?.push(transaction[0]._id);
-    admin.transactions?.push(transaction[0]._id);
-
-    await agent.save({ session });
-    await admin.save({ session });
-
-    await session.commitTransaction();
-    session.endSession();
-
-    return transaction[0];
-  } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    throw error;
-  }
-};
-
 export const getUserTransactionsService = async (userId: string) => {
   const user = await UserModel.findById(userId).populate('transactions');
   if (!user || user.isDeleted || !user.isActive) {
@@ -338,7 +263,7 @@ export const TransactionService = {
   sendMoneyService,
   cashOutService,
   cashInService,
-  requestBalanceRechargeService,
+
   getUserTransactionsService,
   getAgentTransactionsService,
 };

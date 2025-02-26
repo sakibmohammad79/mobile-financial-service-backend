@@ -14,6 +14,10 @@ route.post(
   AdminController.createAdmin,
 );
 
-route.put('/approve-agent/:agentId', AdminController.approveAgentService);
+route.patch('/approve-agent/:agentId', AdminController.approveAgentService);
+route.patch(
+  '/approve-balance-recharge/:id',
+  AdminController.approveBalanceRechargeRequest,
+);
 
 export const AdminRoutes = route;

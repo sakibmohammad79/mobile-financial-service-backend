@@ -7,3 +7,13 @@ export interface IAgent extends BaseAccount {
   transactions?: mongoose.Types.ObjectId[];
   totalIncome: number;
 }
+
+import { Document, Types } from 'mongoose';
+
+export interface IRechargeRequest extends Document {
+  agentId: Types.ObjectId;
+  amount: number;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: Date;
+  updatedAt: Date;
+}
