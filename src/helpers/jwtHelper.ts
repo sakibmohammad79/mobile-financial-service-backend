@@ -3,16 +3,16 @@ import jwt from 'jsonwebtoken';
 import ApiError from '../app/error/ApiError';
 import { StatusCodes } from 'http-status-codes';
 
-const generateToken = async (
-  jwtPayload: JwtPayload,
-  secret: Secret,
-  expiresIn: string,
-) => {
-  return jwt.sign(jwtPayload, secret, {
-    algorithm: 'HS256',
-    expiresIn,
-  });
-};
+// const generateToken = async (
+//   jwtPayload: JwtPayload,
+//   secret: Secret,
+//   expiresIn: string,
+// ) => {
+//   return jwt.sign(jwtPayload, secret, {
+//     algorithm: 'HS256',
+//     expiresIn,
+//   });
+// };
 
 const verifyToken = async (token: string, secret: Secret) => {
   try {
@@ -24,6 +24,5 @@ const verifyToken = async (token: string, secret: Secret) => {
 };
 
 export const jwtHelpers = {
-  generateToken,
   verifyToken,
 };
