@@ -11,6 +11,7 @@ const UserSchema = new Schema<IUser>(
     pin: {
       type: String,
       required: [true, 'PIN is required'],
+      unique: true,
     },
     mobileNumber: {
       type: String,

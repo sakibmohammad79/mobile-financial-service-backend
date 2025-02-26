@@ -48,6 +48,20 @@ const cashIn: RequestHandler = catchAsync(async (req, res, next) => {
     data: result,
   });
 });
+const addmoney: RequestHandler = catchAsync(async (req, res, next) => {
+  const { adminId, agentId, amount } = req.body;
+  const result = await TransactionService.addMoneyToAgentService(
+    adminId,
+    agentId,
+    amount,
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Add money successfully!',
+    data: result,
+  });
+});
 
 const getUserTransactions: RequestHandler = catchAsync(async (req, res) => {
   const { userId } = req.params;
@@ -76,4 +90,5 @@ export const TransactionController = {
   cashIn,
   getUserTransactions,
   getAgentTransactions,
+  addmoney,
 };

@@ -13,7 +13,7 @@ const TransactionSchema = new Schema<Transaction>(
     amount: { type: Number, required: true, min: 50 },
     type: {
       type: String,
-      enum: ['sendmoney', 'cashin', 'cashout', 'recharge'],
+      enum: ['sendmoney', 'cashin', 'cashout', 'recharge', 'addmoney'],
       required: true,
     },
     fee: { type: Number, default: 0 },

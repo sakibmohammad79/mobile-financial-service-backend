@@ -19,11 +19,11 @@ interface BaseAccount {
 // Transaction Interface
 interface Transaction {
   _id?: mongoose.Types.ObjectId;
-  senderId?: mongoose.Types.ObjectId; // Optional for Cash-In
-  receiverId?: mongoose.Types.ObjectId; // Optional for Cash-Out
-  senderType: 'Admin' | 'User'; // Specifies sender type
+  senderId?: mongoose.Types.ObjectId;
+  receiverId?: mongoose.Types.ObjectId;
+  senderType: 'Admin' | 'User';
   amount: number;
-  type: 'sendmoney' | 'cashin' | 'cashout';
+  type: 'sendmoney' | 'cashin' | 'cashout' | 'addmoney';
   fee: number;
   timestamp?: Date;
 }

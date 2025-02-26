@@ -113,7 +113,7 @@ export const createBalanceRechargeRequest = async (
   const rechargeRequest = await RechargeRequestModel.create({
     agentId,
     amount,
-    status: 'pending', // Status: pending | approved | rejected
+    status: 'pending',
   });
 
   return rechargeRequest;

@@ -5,8 +5,9 @@ import { AdminModel } from '../admin/admin.model';
 import mongoose from 'mongoose';
 import { TransactionModel } from './transition.model';
 import { AgentModel } from '../agent/agent.mode';
+import bcrypt from 'bcryptjs';
 
-export const sendMoneyService = async (
+const sendMoneyService = async (
   senderId: string,
   receiverPhone: string,
   amount: number,
@@ -89,7 +90,7 @@ export const sendMoneyService = async (
   }
 };
 
-export const cashOutService = async (
+const cashOutService = async (
   userId: string,
   agentId: string,
   amount: number,
@@ -102,13 +103,20 @@ export const cashOutService = async (
     );
 
   const user = await UserModel.findById(userId);
-  if (!user || user.isDeleted || !user.isActive)
+  console.log(user);
+  if (!user || user.isDeleted || !user.isActive) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'user not found.');
-  if (user.pin !== pin)
-    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid  PIN.');
+  }
 
-  if (user.balance < amount)
+  const isPinCorrect = bcrypt.compare(pin, user.pin);
+
+  if (!isPinCorrect) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid  PIN.');
+  }
+
+  if (user.balance < amount) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Insufficient balance.');
+  }
 
   const agent = await AgentModel.findById(agentId);
   if (!agent || !agent.isVerified || !agent.isActive || agent.isDeleted)
@@ -146,6 +154,7 @@ export const cashOutService = async (
           amount,
           type: 'cashout',
           fee: totalFee,
+          senderType: 'user',
         },
       ],
       { session },
@@ -173,7 +182,7 @@ export const cashOutService = async (
   }
 };
 
-export const cashInService = async (
+const cashInService = async (
   userId: string,
   agentId: string,
   amount: number,
@@ -190,8 +199,11 @@ export const cashInService = async (
         StatusCodes.FORBIDDEN,
         'Invalid or unverified agent or deleted agent.',
       );
-    if (agent.pin !== pin)
-      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid PIN.');
+    const isPinCorrect = bcrypt.compare(pin, agent.pin);
+
+    if (!isPinCorrect) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid  PIN.');
+    }
     if (agent.balance < amount) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
@@ -243,6 +255,74 @@ export const cashInService = async (
   }
 };
 
+const addMoneyToAgentService = async (
+  adminId: string,
+  agentId: string,
+  amount: number,
+) => {
+  if (amount <= 0) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Amount must be greater than zero.',
+    );
+  }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const admin = await AdminModel.findById(adminId).session(session);
+    if (!admin) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Admin not found.');
+    }
+
+    const agent = await AgentModel.findById(agentId).session(session);
+    if (!agent || agent.isDeleted || !agent.isVerified || !agent.isActive) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Invalid or unverified agent.');
+    }
+
+    admin.totalSystemBalance -= amount;
+    if (admin.totalSystemBalance < 0) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'Insufficient system balance.',
+      );
+    }
+    agent.balance += amount;
+
+    await admin.save({ session });
+    await agent.save({ session });
+
+    const transaction = await TransactionModel.create(
+      [
+        {
+          senderId: admin._id,
+          receiverId: agent._id,
+          amount,
+          type: 'addmoney',
+          fee: 0,
+        },
+      ],
+      { session },
+    );
+
+    await AgentModel.findByIdAndUpdate(
+      agentId,
+      { $push: { transactions: transaction[0]._id } },
+      { session },
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return transaction[0];
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
+};
+
 export const getUserTransactionsService = async (userId: string) => {
   const user = await UserModel.findById(userId).populate('transactions');
   if (!user || user.isDeleted || !user.isActive) {
@@ -263,7 +343,7 @@ export const TransactionService = {
   sendMoneyService,
   cashOutService,
   cashInService,
-
+  addMoneyToAgentService,
   getUserTransactionsService,
   getAgentTransactionsService,
 };

@@ -8,6 +8,7 @@ const AgentSchema = new Schema<IAgent>(
     pin: {
       type: String,
       required: [true, 'PIN is required'],
+      unique: true,
     },
     mobileNumber: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
