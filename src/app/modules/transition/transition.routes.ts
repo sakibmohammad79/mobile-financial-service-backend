@@ -3,6 +3,7 @@ import { TransactionController } from './transition.controller';
 
 const route = Router();
 
+route.get('/', TransactionController.getAllTransaction);
 route.get('/agent/:agentId', TransactionController.getAgentTransactions);
 route.get('/user/:userId', TransactionController.getUserTransactions);
 

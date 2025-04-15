@@ -59,6 +59,16 @@ const blockAgentById: RequestHandler = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const unblockAgentById: RequestHandler = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await AgentServices.unblockAgentById(id);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Agent unblocked successfully!',
+    data: result,
+  });
+});
 
 const softDeleteAgentById: RequestHandler = catchAsync(async (req, res) => {
   const { id } = req.params;
@@ -91,6 +101,7 @@ export const AgentController = {
   getAgentById,
   updateAgentById,
   blockAgentById,
+  unblockAgentById,
   softDeleteAgentById,
   requestBalanceRecharge,
 };

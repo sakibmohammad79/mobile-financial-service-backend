@@ -11,7 +11,7 @@ const loginUser: RequestHandler = catchAsync(async (req, res, next) => {
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: 'All user fetched successfully!',
+    message: 'Login successfully!',
     data: result,
   });
 });

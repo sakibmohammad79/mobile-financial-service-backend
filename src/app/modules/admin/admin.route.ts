@@ -20,5 +20,9 @@ route.patch(
   '/approve-balance-recharge/:id',
   AdminController.approveBalanceRechargeRequest,
 );
+route.patch(
+  '/reject-balance-recharge/:id',
+  AdminController.rejectBalanceRechargeRequest,
+);
 
 export const AdminRoutes = route;

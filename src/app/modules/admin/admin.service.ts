@@ -131,11 +131,63 @@ export const approveAgentBalanceRechargeRequest = async (requestId: string) => {
   }
 };
 
+const rejectAgentBalanceRechargeRequest = async (requestId: string) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    // Find the recharge request
+    const rechargeRequest =
+      await RechargeRequestModel.findById(requestId).session(session);
+
+    if (!rechargeRequest) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Recharge request not found.');
+    }
+    if (rechargeRequest.status !== 'pending') {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Request is not pending.');
+    }
+
+    // Find the agent
+    const agent = await AgentModel.findById(rechargeRequest.agentId).session(
+      session,
+    );
+    if (!agent) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Agent not found.');
+    }
+
+    // Find the admin
+    const admin = await AdminModel.findOne().session(session);
+    if (!admin) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Admin account not found.');
+    }
+
+    // Update recharge request status to 'rejected'
+    rechargeRequest.status = 'rejected';
+
+    // Save updates
+    const requestRequest = await rechargeRequest.save({ session });
+
+    // Save agent and admin updates
+    await agent.save({ session });
+    await admin.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return requestRequest;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
+};
+
 export const AdminService = {
   createAdminIntoDB,
   getAdminByIdfromDB,
   getAllAdminFromDB,
   approveAgentService,
   approveAgentBalanceRechargeRequest,
+  rejectAgentBalanceRechargeRequest,
   getAllRechareRequest,
 };

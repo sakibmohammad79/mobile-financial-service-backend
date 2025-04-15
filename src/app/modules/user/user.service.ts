@@ -20,7 +20,7 @@ const createUserIntoDB = async (payload: any) => {
 };
 
 const getAllUsersFromDB = async (phone?: string) => {
-  const query: any = { isDeleted: false, isActive: true };
+  const query: any = { isDeleted: false };
 
   if (phone) {
     query.mobileNumber = { $regex: phone, $options: 'i' };
@@ -55,6 +55,23 @@ const userBlocked = async (id: string) => {
     { new: true },
   );
   return blockedUser;
+};
+const userUnBlocked = async (id: string) => {
+  const user = await UserModel.findOne({
+    _id: id,
+    isDeleted: false,
+    isActive: false,
+  });
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  const unblockedUser = await UserModel.findByIdAndUpdate(
+    id,
+    { isActive: true },
+    { new: true },
+  );
+  return unblockedUser;
 };
 
 const softDeleteUser = async (id: string) => {
@@ -94,6 +111,7 @@ export const UserService = {
   getAllUsersFromDB,
   getUserByIdfromDB,
   userBlocked,
+  userUnBlocked,
   softDeleteUser,
   updateUser,
 };

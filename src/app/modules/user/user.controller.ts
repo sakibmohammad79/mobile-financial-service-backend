@@ -67,6 +67,16 @@ const userBlocked: RequestHandler = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const userUnBlocked: RequestHandler = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await UserService.userUnBlocked(id);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'User unblocked  successfully!',
+    data: result,
+  });
+});
 
 export const UserController = {
   getAllUser,
@@ -75,4 +85,5 @@ export const UserController = {
   updateUser,
   useSoftDelete,
   userBlocked,
+  userUnBlocked,
 };

@@ -57,6 +57,18 @@ const approveBalanceRechargeRequest: RequestHandler = catchAsync(
     });
   },
 );
+const rejectBalanceRechargeRequest: RequestHandler = catchAsync(
+  async (req, res) => {
+    const { id } = req.params;
+    const result = await AdminService.rejectAgentBalanceRechargeRequest(id);
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: 'Balance Recharged request rejected successfully!',
+      data: result,
+    });
+  },
+);
 
 const getAllRechareRequest: RequestHandler = catchAsync(async (req, res) => {
   const result = await AdminService.getAllRechareRequest();
@@ -74,5 +86,6 @@ export const AdminController = {
   getAdminById,
   approveAgentService,
   approveBalanceRechargeRequest,
+  rejectBalanceRechargeRequest,
   getAllRechareRequest,
 };

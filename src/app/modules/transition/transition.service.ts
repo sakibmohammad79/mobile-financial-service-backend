@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import { TransactionModel } from './transition.model';
 import { AgentModel } from '../agent/agent.mode';
 import bcrypt from 'bcryptjs';
+import path from 'path';
 
 const sendMoneyService = async (
   senderId: string,
@@ -108,7 +109,7 @@ const cashOutService = async (
     throw new ApiError(StatusCodes.NOT_FOUND, 'user not found.');
   }
 
-  const isPinCorrect = bcrypt.compare(pin, user.pin);
+  const isPinCorrect = await bcrypt.compare(pin, user.pin);
 
   if (!isPinCorrect) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid  PIN.');
@@ -188,6 +189,7 @@ const cashInService = async (
   amount: number,
   pin: string,
 ) => {
+  console.log(pin);
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -199,8 +201,8 @@ const cashInService = async (
         StatusCodes.FORBIDDEN,
         'Invalid or unverified agent or deleted agent.',
       );
-    const isPinCorrect = bcrypt.compare(pin, agent.pin);
-
+    const isPinCorrect = await bcrypt.compare(pin, agent.pin);
+    console.log(isPinCorrect);
     if (!isPinCorrect) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid  PIN.');
     }
@@ -324,20 +326,31 @@ const addMoneyToAgentService = async (
 };
 
 export const getUserTransactionsService = async (userId: string) => {
-  const user = await UserModel.findById(userId).populate('transactions');
-  if (!user || user.isDeleted || !user.isActive) {
+  const user = await UserModel.findById(userId).populate({
+    path: 'transactions',
+    options: { sort: { createdAt: -1 } },
+  });
+  if (!user || user.isDeleted) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.');
   }
   return user.transactions;
 };
 
 export const getAgentTransactionsService = async (agentId: string) => {
-  const agent = await AgentModel.findById(agentId).populate('transactions');
-  if (!agent || agent.isDeleted || !agent.isActive) {
+  const agent = await AgentModel.findById(agentId).populate({
+    path: 'transactions',
+    options: { sort: { createdAt: -1 } },
+  });
+  if (!agent || agent.isDeleted) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Agent not found.');
   }
   return agent.transactions;
 };
+
+const getAllTransactionFromDB = async() => {
+  const result = await TransactionModel.find({});
+  return result;
+}
 
 export const TransactionService = {
   sendMoneyService,
@@ -346,4 +359,5 @@ export const TransactionService = {
   addMoneyToAgentService,
   getUserTransactionsService,
   getAgentTransactionsService,
+  getAllTransactionFromDB
 };

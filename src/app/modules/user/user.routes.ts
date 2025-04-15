@@ -10,6 +10,7 @@ route.get('/:id', UserController.getUserById);
 route.delete('/soft-delete/:id', UserController.useSoftDelete);
 route.patch('/update/:id', UserController.updateUser);
 route.patch('/blocked/:id', UserController.userBlocked);
+route.patch('/unblocked/:id', UserController.userUnBlocked);
 route.post(
   '/create-user',
   validateRequest(userValidationSchema),

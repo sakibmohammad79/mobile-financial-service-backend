@@ -83,6 +83,16 @@ const getAgentTransactions: RequestHandler = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getAllTransaction: RequestHandler = catchAsync(async (req, res) => {
+
+  const result = await TransactionService.getAllTransactionFromDB();
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'All transactions fetched successfully!',
+    data: result,
+  });
+});
 
 export const TransactionController = {
   sendMoney,
@@ -91,4 +101,5 @@ export const TransactionController = {
   getUserTransactions,
   getAgentTransactions,
   addmoney,
+  getAllTransaction
 };

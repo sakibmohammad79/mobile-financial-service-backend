@@ -20,7 +20,7 @@ const createAgentIntoDB = async (payload: any) => {
 };
 
 const getAllAgentFromDB = async (phone?: string) => {
-  const query: any = { isDeleted: false, isActive: true };
+  const query: any = { isDeleted: false };
 
   if (phone) {
     query.mobileNumber = { $regex: phone, $options: 'i' };
@@ -66,6 +66,20 @@ const blockAgentById = async (id: string) => {
     { new: true },
   );
   return blockedAgent;
+};
+const unblockAgentById = async (id: string) => {
+  const agent = await AgentModel.findOne({
+    _id: id,
+    isDeleted: false,
+    isActive: false,
+  });
+  if (!agent) throw new ApiError(404, 'agent not found');
+  const unblockedAgent = await AgentModel.findByIdAndUpdate(
+    id,
+    { isActive: true },
+    { new: true },
+  );
+  return unblockedAgent;
 };
 
 const softDeleteAgentById = async (id: string) => {
@@ -125,6 +139,7 @@ export const AgentServices = {
   getAgentByIdFromDB,
   updateAgentById,
   blockAgentById,
+  unblockAgentById,
   softDeleteAgentById,
   createBalanceRechargeRequest,
 };

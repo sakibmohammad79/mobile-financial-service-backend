@@ -6,12 +6,20 @@ import router from './app/routes';
 const app: Application = express();
 
 app.use(express.json());
+
+
 app.use(
   cors({
     origin: 'http://localhost:5173',
     credentials: true,
   }),
 );
+// app.use(
+//   cors({
+//     origin: 'https://mobile-financial-service-frontend.vercel.app',
+//     credentials: true,
+//   }),
+// );
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Mobile financial service app is running!');
